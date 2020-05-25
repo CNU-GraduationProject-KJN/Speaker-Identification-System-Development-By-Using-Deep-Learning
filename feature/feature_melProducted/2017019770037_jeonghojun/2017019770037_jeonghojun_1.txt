@@ -1,0 +1,5 @@
+sr=16000
+hop_length=512
+n_fft=512
+n_mels=40
+time=15
