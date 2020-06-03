@@ -1,7 +1,7 @@
 import os
 
 DATA_AUDIO_DIR = './test_train_data/'
-TARGET_SR = 16000
+TARGET_SR = 8000
 OUTPUT_DIR = './output'
 OUTPUT_DIR_TRAIN = os.path.join(OUTPUT_DIR, 'train')
 OUTPUT_DIR_TEST = os.path.join(OUTPUT_DIR, 'test')
