@@ -27,7 +27,8 @@
                 <android.support.design.widget.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="hint" />
+                    android:hint="User Name"
+                    android:id="@+id/user_name"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -39,7 +40,8 @@
                 <android.support.design.widget.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="hint" />
+                    android:hint="User Identification Number"
+                    android:id="@+id/identification_number"/>
             </android.support.design.widget.TextInputLayout>
 
             <LinearLayout

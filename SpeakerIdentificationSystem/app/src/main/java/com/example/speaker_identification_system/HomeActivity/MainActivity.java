@@ -1,5 +1,6 @@
 package com.example.speaker_identification_system.HomeActivity;
 
+import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.speaker_identification_system.R;
 
@@ -20,6 +22,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,6 +34,11 @@ public class MainActivity extends AppCompatActivity {
     private Button mPlayButton;
 
     private TextView mRecordText;
+
+    private android.support.design.widget.TextInputEditText mNameText;
+    private android.support.design.widget.TextInputEditText mIdentificationNumber;
+
+    private Button mSetInfoButton;
 
     public AudioRecord mAudioRecorder;
     public AudioTrack mAudioTrack;
@@ -56,12 +65,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.homeactivity_main);
 
-        mUserInfo = "subin_";
+
 
         mRecordButton = (Button) findViewById(R.id.record_);
         mTransferButton = (Button) findViewById(R.id.transfer_);
         mPlayButton = (Button) findViewById(R.id.play_);
         mRecordText = (TextView) findViewById(R.id.record_text);
+
+        mNameText = (android.support.design.widget.TextInputEditText) findViewById(R.id.user_name);
+        mIdentificationNumber = (android.support.design.widget.TextInputEditText) findViewById(R.id.identification_number);
+        mSetInfoButton = (Button) findViewById(R.id.setID);
+
+        mUserInfo = mNameText.getText().toString()+"_"+getMD5(mIdentificationNumber.getText().toString());
 
         mRecordThread = new Thread(new Runnable() {
             @Override
@@ -84,8 +99,6 @@ public class MainActivity extends AppCompatActivity {
                     mAudioRecorder.stop();
                     mAudioRecorder.release();
                     mAudioRecorder = null;
-
-
 
                 } catch (FileNotFoundException fileNotFoundErr) {
                     fileNotFoundErr.printStackTrace();
@@ -132,8 +145,10 @@ public class MainActivity extends AppCompatActivity {
 
                 } catch (FileNotFoundException fileNotFoundErr) {
                     fileNotFoundErr.printStackTrace();
+                    Log.d(TAG, "Error : "+fileNotFoundErr);
                 } catch (IOException ioErr) {
                     ioErr.printStackTrace();
+                    Log.d(TAG, "Error : "+ioErr);
                 }
 
             }
@@ -168,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
                 mRecordStatus = false;
 
                 mRecordText.setText("");
+                Toast.makeText(MainActivity.this, "File Path : "+mFilePath, Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -188,9 +204,30 @@ public class MainActivity extends AppCompatActivity {
                 mPlayThread.start();
 
             }else {
-                mRecordButton.setText("Play");
+                mPlayButton.setText("Play");
                 mPlayStatus = false;
             }
         }
     };
+
+    public String getMD5(String str){
+        String MD5 = "";
+        try{
+            MessageDigest md = MessageDigest.getInstance("MD5");
+
+            md.update(str.getBytes());
+            byte byteData[] = md.digest();
+
+            StringBuffer sb = new StringBuffer();
+            for(int i = 0 ; i < byteData.length ; i++){
+                sb.append(Integer.toString((byteData[i]&0xff) + 0x100, 16).substring(1));
+            }
+            MD5 = sb.toString();
+
+        }catch(NoSuchAlgorithmException e){
+            e.printStackTrace();
+            MD5 = null;
+        }
+        return MD5;
+    }
 }
