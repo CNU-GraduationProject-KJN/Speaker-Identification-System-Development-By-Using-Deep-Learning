@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private android.support.design.widget.TextInputEditText mIdentificationNumber;
 
     private Button mSetInfoButton;
+    private boolean mSettingStatus = false;
 
     public AudioRecord mAudioRecorder;
     public AudioTrack mAudioTrack;
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         mIdentificationNumber = (android.support.design.widget.TextInputEditText) findViewById(R.id.identification_number);
         mSetInfoButton = (Button) findViewById(R.id.setID);
 
-        mUserInfo = mNameText.getText().toString()+"_"+getMD5(mIdentificationNumber.getText().toString());
+
 
         mRecordThread = new Thread(new Runnable() {
             @Override
@@ -157,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
         mRecordButton.setOnClickListener(recordVoice);
         mTransferButton.setOnClickListener(transferVoice);
         mPlayButton.setOnClickListener(playAudio);
+        mSetInfoButton.setOnClickListener(settingInfo);
 
     }
 
@@ -190,7 +192,13 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener transferVoice = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
+        }
+    };
+    View.OnClickListener settingInfo = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mUserInfo = mNameText.getText().toString()+"_"+getMD5(mIdentificationNumber.getText().toString());
+            Toast.makeText(MainActivity.this, "Setting User Info", Toast.LENGTH_SHORT).show();
         }
     };
     View.OnClickListener playAudio = new View.OnClickListener() {
