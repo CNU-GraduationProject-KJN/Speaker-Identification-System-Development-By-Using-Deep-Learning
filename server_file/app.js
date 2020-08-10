@@ -1,13 +1,13 @@
 
 const express = require('express')
 const app = express()
-const port = 3000
+const port = 3000 
 var bodyParser = require('body-parser');
 var fileUpload = require('express-fileupload');
 var fs = require('fs');
 var mysql = require("mysql");
 var http = require('http').Server(app);
-var io = require('socket.io').http;
+var io = require('socket.io')(http);
 
 mysqlConfig = {
     host: "168.188.126.212",
@@ -67,7 +67,9 @@ app.post('/upload/:id', function(req,res,next){
 app.get('/', (req, res) => {
   res.sendFile(__dirname+'/index.html');
 })
-
+io.on('connection', function(socket){
+ console.log('user Connected');
+});
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
