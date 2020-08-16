@@ -111,7 +111,8 @@
             android:layout_height="match_parent"
             android:layout_weight="370"
             android:inputType="textPersonName"
-            android:hint="이름을 입력해주세요" />
+            android:hint="이름을 입력해주세요"
+android:digits="abcdefghijklmnopqrstuvwxyz" />
 
         <FrameLayout
             android:layout_width="0dp"
