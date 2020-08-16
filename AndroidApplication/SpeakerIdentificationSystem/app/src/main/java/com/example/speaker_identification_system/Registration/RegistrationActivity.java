@@ -24,7 +24,6 @@ import android.widget.Toast;
 
 import com.example.speaker_identification_system.R;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -86,10 +85,8 @@ public class RegistrationActivity extends AppCompatActivity {
     private String mUserInfo;
     private String mUserName;
 
-    private Thread mRecordThread;
     private boolean mRecordStatus = false;
 
-    private Thread mPlayThread;
     private boolean mPlayStatus = false;
 
     private ArrayList<String> mFilePathList;
@@ -115,102 +112,9 @@ public class RegistrationActivity extends AppCompatActivity {
         mSetInfoButton = (Button) findViewById(R.id.setID_);
 
 
-        //Record Thread
-        mRecordThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                byte[] readData = new byte[mBufferSize];
-                int writeCheck = ContextCompat.checkSelfPermission(RegistrationActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                int readCheck = ContextCompat.checkSelfPermission(RegistrationActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
-                if(writeCheck != PackageManager.PERMISSION_GRANTED && readCheck != PackageManager.PERMISSION_GRANTED){
-                    Log.d(TAG, "No Privileges");
-                }
-                if(mFileNameList.isEmpty()) {
-                    File dir = Environment.getExternalStoragePublicDirectory(
-                            mUserInfo);
-                    dir.mkdir();
-                    Log.d(TAG, "dir Path : "+dir.getAbsolutePath());
-                    Log.d(TAG, "Dir Exist? : "+ dir.exists());
-                }
-                File pcmfile = Environment.getExternalStoragePublicDirectory(
-                        mUserInfo+"/"+(mFilePathList.size()+1)+".pcm");
-                Log.d(TAG, "File Exist? : "+ pcmfile.exists());
-                String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+mUserInfo+"/"+(mFilePathList.size()+1)+".pcm";
-                String fileName = (mFilePathList.size()+1)+".pcm";
 
-                Log.d(TAG, "filePath :  "+filePath);
-                Log.d(TAG, "File State : "+Environment.getExternalStorageState());
-
-                try (FileOutputStream fos = new FileOutputStream(filePath)){
-
-                    while(mRecordStatus){
-                        int readByte = mAudioRecorder.read(readData, 0, mBufferSize);
-
-                        fos.write(readData, 0, mBufferSize);
-                        Log.d(TAG, "Read "+readByte+" bytes");
-                    }
-
-                    mAudioRecorder.stop();
-                    mAudioRecorder.release();
-                    mAudioRecorder = null;
-
-                    mFilePathList.add(filePath);
-                    mFileNameList.add(fileName);
-
-                } catch (FileNotFoundException fileNotFoundErr) {
-                    fileNotFoundErr.printStackTrace();
-                    Log.d(TAG, "Error : "+fileNotFoundErr);
-                }catch (IOException ioErr) {
-                    ioErr.printStackTrace();
-                    Log.d(TAG, "Error : "+ioErr);
-                }
-            }
-        });
         //for Checking User Voice
         mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, mSampleRate, mChannelCount, mAudioFormat, mBufferSize, AudioTrack.MODE_STREAM); // AudioTrack 생성
-        mPlayThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                byte[] writeData = new byte[mBufferSize];
-
-                try (FileInputStream fis = new FileInputStream(mSelectedFilePath);
-                     DataInputStream dis = new DataInputStream(fis);
-                ){
-                    mAudioTrack.play();
-
-                    while(mPlayStatus) {
-                        try {
-                            int ret = dis.read(writeData, 0, mBufferSize);
-                            if (ret <= 0) {
-                                (RegistrationActivity.this).runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mPlayStatus = false;
-                                        mPlayButton.setText("Play");
-                                    }
-                                });
-                                break;
-                            }
-                            mAudioTrack.write(writeData, 0, ret);
-                        }catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                    mAudioTrack.stop();
-                    mAudioTrack.release();
-                    mAudioTrack = null;
-
-                } catch (FileNotFoundException fileNotFoundErr) {
-                    fileNotFoundErr.printStackTrace();
-                    Log.d(TAG, "Error : "+fileNotFoundErr);
-                } catch (IOException ioErr) {
-                    ioErr.printStackTrace();
-                    Log.d(TAG, "Error : "+ioErr);
-                }
-
-            }
-        });
 
         mRecordButton.setOnClickListener(recordVoice);
         mTransferButton.setOnClickListener(transferVoice);
@@ -223,6 +127,7 @@ public class RegistrationActivity extends AppCompatActivity {
         public void onClick(View v) {
 
             if(!mRecordStatus){
+                Toast.makeText(RegistrationActivity.this, (mFileNameList.size()+1)+" 번째 녹음",Toast.LENGTH_SHORT).show();
                 mRecordButton.setText("Done");
                 mRecordStatus = true;
 
@@ -235,15 +140,65 @@ public class RegistrationActivity extends AppCompatActivity {
 
                 if(mAudioRecorder == null) mAudioRecorder = new AudioRecord(mAudioSource, mSampleRate, mChannelCount, mAudioFormat, mBufferSize);
                 mAudioRecorder.startRecording();
-                mRecordThread.start();
+
+                //Record Thread
+                Thread recordThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        byte[] readData = new byte[mBufferSize];
+                        int writeCheck = ContextCompat.checkSelfPermission(RegistrationActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                        int readCheck = ContextCompat.checkSelfPermission(RegistrationActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+                        if(writeCheck != PackageManager.PERMISSION_GRANTED && readCheck != PackageManager.PERMISSION_GRANTED){
+                            Log.d(TAG, "No Privileges");
+                        }
+                        if(mFileNameList.isEmpty()) {
+                            File dir = Environment.getExternalStoragePublicDirectory(
+                                    mUserInfo);
+                            dir.mkdir();
+                            Log.d(TAG, "dir Path : "+dir.getAbsolutePath());
+                            Log.d(TAG, "Dir Exist? : "+ dir.exists());
+                        }
+                        File pcmfile = Environment.getExternalStoragePublicDirectory(
+                                mUserInfo+"/"+(mFilePathList.size()+1)+".pcm");
+                        Log.d(TAG, "File Exist? : "+ pcmfile.exists());
+                        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+mUserInfo+"/"+(mFilePathList.size()+1)+".pcm";
+                        String fileName = (mFilePathList.size()+1)+".pcm";
+
+                        Log.d(TAG, "filePath :  "+filePath);
+                        Log.d(TAG, "File State : "+Environment.getExternalStorageState());
+
+                        try (FileOutputStream fos = new FileOutputStream(filePath)){
+
+                            while(mRecordStatus){
+                                int readByte = mAudioRecorder.read(readData, 0, mBufferSize);
+
+                                fos.write(readData, 0, mBufferSize);
+                                Log.d(TAG, "Read "+readByte+" bytes");
+                            }
+
+                            mAudioRecorder.stop();
+                            mAudioRecorder.release();
+                            mAudioRecorder = null;
+
+                            mFilePathList.add(filePath);
+                            mFileNameList.add(fileName);
+
+                        } catch (FileNotFoundException fileNotFoundErr) {
+                            fileNotFoundErr.printStackTrace();
+                            Log.d(TAG, "Error : "+fileNotFoundErr);
+                        }catch (IOException ioErr) {
+                            ioErr.printStackTrace();
+                            Log.d(TAG, "Error : "+ioErr);
+                        }
+                    }
+                });
+                recordThread.start();
+
             }else {
                 mRecordButton.setText("Record");
                 mRecordStatus = false;
 
                 mRecordText.setText("");
-                while(!mRecordThread.getState().equals(Thread.State.TERMINATED)){}
-
-                Log.d(TAG, "Thread State : "+mRecordThread.getState());
             }
         }
     };
@@ -308,7 +263,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
             try{
                 String urlServer = mServerUrl + mUserInfo;
-
+                mCompressFiles.publish(30, 30);
                 jsonObject = new JSONObject();
                 jsonObject.put("fileName", mUserInfo);
                 jsonObject.put("userName", mUserName);
@@ -317,6 +272,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
                 url = new URL(urlServer);
                 //Connection
+                mCompressFiles.publish(50, 50);
                 connection = (HttpURLConnection) url.openConnection();
 
                 //Connection in & output setting
@@ -333,9 +289,11 @@ public class RegistrationActivity extends AppCompatActivity {
 
                 Log.d(TAG, "try connect");
                 //연결
+                mCompressFiles.publish(70, 70);
                 connection.connect();
                 Log.d(TAG, "connect");
 
+                mCompressFiles.publish(90, 90);
                 //write JSON file
                 outputStream = connection.getOutputStream();
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
@@ -343,19 +301,11 @@ public class RegistrationActivity extends AppCompatActivity {
                 writer.flush();
                 writer.close();
 
+                mCompressFiles.publish(100, 100);
                 // get server response , not complete !
-                stream = connection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(stream));
-                buffer = new StringBuffer();
+                int status = connection.getResponseCode();
 
-                String line = "";
-                while((line = reader.readLine()) != null){
-                    buffer.append(line);
-                }
-
-                if (buffer.toString().equals("OK")){
-                    Toast.makeText(RegistrationActivity.this, "업로드 실패", Toast.LENGTH_SHORT).show();
-                }
+                Log.d(TAG, "status : "+ status);
 
                 mFileNameList = new ArrayList<>();
                 mFilePathList = new ArrayList<>();
@@ -366,7 +316,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 if(connection != null) connection.disconnect();
                 try {
                     if(reader != null) reader.close();
-
+                    success[0] = true;
                 }catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -377,36 +327,52 @@ public class RegistrationActivity extends AppCompatActivity {
             return success[0];
         }
 
-        public void publish(int filesCompressionCompleted) {
-            int totalNumberOfFiles = mFilePathList.size();
-            publishProgress(filesCompressionCompleted, totalNumberOfFiles, 0);
+        public void publish(int progressRate, int taskFlag) {
+            if(taskFlag == 0){
+                int totalNumberOfFiles = mFilePathList.size();
+                publishProgress(progressRate, totalNumberOfFiles, taskFlag);
+            }else{
+                publishProgress(progressRate, 100, taskFlag);
+            }
+
         }
 
         protected void onProgressUpdate(Integer... progress) {
-            Log.d(TAG, "progress size : "+progress.length);
             try {
                 Log.d(TAG, "progress[0] : "+progress[0]);
+                Log.d(TAG, "progress[1] : "+progress[1]);
+                Log.d(TAG, "progress[2] : "+progress[2]);
+
                 asyncDialog.setProgress(progress[0]);
                 asyncDialog.setMax(progress[1]);
-                asyncDialog.setMessage(progress[2] == 0 ? "압축 중..." : "업로드중");
+                String msg = (progress[2] == 0) ? "압축 중" :
+                        (progress[2] == 30) ? "파일 준비 중" :
+                                (30 < progress[2] && progress[2] <= 70) ? "연결 중" :
+                                        (70 < progress[2] && progress[2] < 100) ? "전송 중" : "전송 완료";
+
+                asyncDialog.setMessage(msg);
             } catch (Exception ignored) {
                 ignored.printStackTrace();
             }
         }
 
         protected void onPostExecute(Boolean flag) {
-            Log.d(TAG, "COMPLETED");
+            Log.d(TAG, "COMPLETED : "+ flag);
             asyncDialog.dismiss();
 
             if (flag) Toast.makeText(getApplicationContext(), "업로드 완료", Toast.LENGTH_SHORT).show();
-            finish();
         }
     }
+    //for progress bar
+    public void setProgress(int progressRate, int taskFlag) {
+        mCompressFiles.publish(progressRate, taskFlag);
+    }
+
     View.OnClickListener transferVoice = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
 
-            if(mFileNameList.size() < 1){
+            if(mFileNameList.size() < 5){
                 Toast.makeText(RegistrationActivity.this, "Please Record Voice 5 times.", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -415,6 +381,7 @@ public class RegistrationActivity extends AppCompatActivity {
             // compress and transfer
             mCompressFiles = new CompressFiles();
             mCompressFiles.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
         }
     };
     //save user info
@@ -452,7 +419,51 @@ public class RegistrationActivity extends AppCompatActivity {
                 builder.create();
 
                 if(mAudioTrack == null) mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, mSampleRate, mChannelCount, mAudioFormat, mBufferSize, AudioTrack.MODE_STREAM);
-                mPlayThread.start();
+                Thread playThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        byte[] writeData = new byte[mBufferSize];
+
+                        try (FileInputStream fis = new FileInputStream(mSelectedFilePath);
+                             DataInputStream dis = new DataInputStream(fis);
+                        ){
+                            mAudioTrack.play();
+
+                            while(mPlayStatus) {
+                                try {
+                                    int ret = dis.read(writeData, 0, mBufferSize);
+                                    if (ret <= 0) {
+                                        (RegistrationActivity.this).runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                mPlayStatus = false;
+                                                mPlayButton.setText("Play");
+                                            }
+                                        });
+                                        break;
+                                    }
+                                    mAudioTrack.write(writeData, 0, ret);
+                                }catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                            mAudioTrack.stop();
+                            mAudioTrack.release();
+                            mAudioTrack = null;
+
+                        } catch (FileNotFoundException fileNotFoundErr) {
+                            fileNotFoundErr.printStackTrace();
+                            Log.d(TAG, "Error : "+fileNotFoundErr);
+                        } catch (IOException ioErr) {
+                            ioErr.printStackTrace();
+                            Log.d(TAG, "Error : "+ioErr);
+                        }
+
+                    }
+                });
+
+                playThread.start();
 
             }else {
                 mPlayButton.setText("Play");
@@ -493,7 +504,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
             byte data[] = new byte[BUFFER];
             for (int i = 0; i < mFilePathList.size(); i++) {
-                setCompressProgress(i + 1);
+                setProgress(i + 1, 0);
 
                 FileInputStream fis = new FileInputStream(mFilePathList.get(i));
                 origin = new BufferedInputStream(fis, BUFFER);
@@ -511,10 +522,7 @@ public class RegistrationActivity extends AppCompatActivity {
         }
 
     }
-    //for progress bar
-    public void setCompressProgress(int filesCompressionCompleted) {
-        mCompressFiles.publish(filesCompressionCompleted);
-    }
+
     //covert file to base64 encoding
     private String convertFileToString(File file) throws IOException{
         byte[] bytes = Files.readAllBytes(file.toPath());
