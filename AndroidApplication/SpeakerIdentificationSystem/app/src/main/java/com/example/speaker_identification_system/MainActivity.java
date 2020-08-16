@@ -9,6 +9,7 @@ import android.widget.Toast;
 import android.content.Intent;
 
 import com.example.speaker_identification_system.Lookup.LookupActivity;
+import com.example.speaker_identification_system.Register.RegisterNameActivity;
 import com.example.speaker_identification_system.Registration.RegistrationActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void onClick_BtnRegister(View v){
-        Intent intent = new Intent(this, RegistrationActivity.class);
+        Intent intent = new Intent(this, RegisterNameActivity.class);
         startActivity(intent);
     }
 

@@ -28,6 +28,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -297,7 +298,30 @@ public class LookupActivity extends AppCompatActivity {
                 mCompressFiles.publish(100, 100);
                 // get server response , not complete !
                 int status = connection.getResponseCode();
+                InputStream is = null;
+                ByteArrayOutputStream baos =null;
+                if(status == HttpURLConnection.HTTP_OK) {
 
+                    is = connection.getInputStream();
+                    baos = new ByteArrayOutputStream();
+                    byte[] byteBuffer = new byte[1024];
+                    byte[] byteData = null;
+                    int nLength = 0;
+                    while((nLength = is.read(byteBuffer, 0, byteBuffer.length)) != -1) {
+                        baos.write(byteBuffer, 0, nLength);
+                    }
+                    byteData = baos.toByteArray();
+
+                    String response = new String(byteData);
+
+                    JSONObject responseJSON = new JSONObject(response);
+                    String result = (String) responseJSON.get("result");
+
+                    if(result.equals("OK")){
+                        success[0] = true;
+                    }
+                    Log.i(TAG, "DATA response = " + result);
+                }
                 Log.d(TAG, "status : "+ status);
 
                 mFileNameList = new ArrayList<>();
@@ -309,7 +333,6 @@ public class LookupActivity extends AppCompatActivity {
                 if(connection != null) connection.disconnect();
                 try {
                     if(reader != null) reader.close();
-                    success[0] = true;
                 }catch (IOException e) {
                     e.printStackTrace();
                 }
