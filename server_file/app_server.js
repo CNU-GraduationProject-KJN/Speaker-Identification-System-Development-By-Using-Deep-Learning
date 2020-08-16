@@ -8,7 +8,8 @@ var fs = require('fs');
 var mysql = require("mysql");
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
-var JSZip = require('jszip');
+var {PythonShell} = require('python-shell');
+
 
 mysqlConfig = {
     host: "127.0.0.1",
@@ -25,15 +26,24 @@ app.use(express.json())
 
 app.post('/upload/:id', function(req,res,next){
 	
+	var dir_path = "/home/una/Audio_For_Speaker-Identification-System-Development-By-Using-Deep-Learning/train/zipfiles/";
 	var obj = req.body;
 	var fileName = obj.fileName+".zip";
 	var str = obj.file;
 	var idx = null;
-	console.log(obj);
+	
+	var options = {
+		mode: 'text',
+		encoding: 'utf8',
+		pythonOptions: ['-u'],
+		scriptPath: '',
+		args: [fileName],
+		pythonPath:''
+	}	
 	
 	if(str == null) return res.status(500).json({ result: "ERROR"});
 	
-	fs.writeFile(__dirname+"/zipfiles/"+fileName, str, {encoding:'base64'}, function(err){
+	fs.writeFile(dir_path+fileName, str, {encoding:'base64'}, function(err){
 		if(err) {
 			console.error(err);
 			return res.status(500).json({ result : "ERROR", err : err});
@@ -48,35 +58,41 @@ app.post('/upload/:id', function(req,res,next){
         
         	c.query("SELECT idx FROM member_list ORDER BY idx DESC LIMIT 1",
 			function(mysqlerr, row){
-				//c.end();
 				if(mysqlerr){
 					console.error(mysqlerr);
 					return res.status(500).json({ result: "ERROR", err: mysqlerr});
             			}
-				console.log("idx row : "+ typeof row);
-         
-            			idx = row[0];
-            			idx *= 1;
-				idx = idx +1;
-				if(isNaN(idx)) idx = 1;
+            			if(isNaN(row[0])) idx = 1;
+				else{
+
+					idx = row[0].idx;
+            				idx *= 1;
+					idx = idx +1;
+				}
 				console.log("idx : "+ idx);
 			
 				c.query("INSERT INTO member_list (member_key, name, path, idx) VALUES ( ?, ?, ?, ?)",
-				[obj.fileName, obj.userName, __dirname+"/zipfiles/"+obj.fileName, idx],
+				[obj.fileName, obj.userName, dir_path+obj.fileName, idx],
 					function(sql_inserr, mysqlres){
 						c.end();
 						if(sql_inserr){
 						console.error(sql_inserr);
 						return res.status(500).json({ result: "ERROR", err: sql_inserr});
 					}
+					
+					var test = new PythonShell('zip_file_listener.py', options);
+					test.on('message', function(message){
+						console.log(message);
+					});
 					io.emit('message', JSON.stringify( [ obj.fileName, 
 					JSON.stringify({ headers:req.headers, body: req.body})]));
 					return res.json({ result : "OK"});
-				});	
+				});
+
+				return;	
 
 		});
-		//python function 호출
-		        
+			        
 
 	});
 	
@@ -90,7 +106,5 @@ app.get('/', (req, res) => {
 io.sockets.on('connection', function(socket){
  console.log('user Connected');
 });
+
 server.listen(port);
-/*app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
-})*/
