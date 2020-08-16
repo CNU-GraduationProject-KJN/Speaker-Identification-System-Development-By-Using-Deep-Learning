@@ -11,11 +11,11 @@ var io = require('socket.io').listen(server);
 var JSZip = require('jszip');
 
 mysqlConfig = {
-    host: "168.188.126.212",
-    port: 3306,
+    host: "127.0.0.1",
+    port: "3306",
     user: "root",
     password: "kjn",
-    database: "main",
+    database: "cnu_kjn_graduate",
     multipleStatements: true
 };
 
@@ -28,6 +28,7 @@ app.post('/upload/:id', function(req,res,next){
 	var obj = req.body;
 	var fileName = obj.fileName+".zip";
 	var str = obj.file;
+	var idx = null;
 	console.log(obj);
 	
 	if(str == null) return res.status(500).json({ result: "ERROR"});
@@ -45,30 +46,37 @@ app.post('/upload/:id', function(req,res,next){
     		var label_num;
 		var c = mysql.createConnection(mysqlConfig);
         
-        	c.query("SELECT label_num FROM zipfiles ORDER BY label_num DESC LIMIT 1",
+        	c.query("SELECT idx FROM member_list ORDER BY idx DESC LIMIT 1",
 			function(mysqlerr, row){
-				c.end();
+				//c.end();
 				if(mysqlerr){
 					console.error(mysqlerr);
 					return res.status(500).json({ result: "ERROR", err: mysqlerr});
             			}
-            
-            			label_num = row[0];
-            			label_num *= 1;
-			});
-        
-        	c.query("INSERT INTO zipfiles (key, userName, path, label_num) VALUES ( ?, ?, ?, ?)",
-			[obj.fileName, obj.userName, __dirname+"/zipfiles/"+fileName, label_num],
-			function(mysqlerr, mysqlres){
-				c.end();
-				if(mysqlerr){
-					console.error(mysqlerr);
-					return res.status(500).json({ result: "ERROR", err: mysqlerr});
-				}
-				io.emit('message', JSON.stringify( [ obj.fileName, 
-				JSON.stringify({ headers:req.headers, body: req.body})]));
-				return res.json({ result : "OK"});
+				console.log("idx row : "+ typeof row);
+         
+            			idx = row[0];
+            			idx *= 1;
+				idx = idx +1;
+				if(isNaN(idx)) idx = 1;
+				console.log("idx : "+ idx);
+			
+				c.query("INSERT INTO member_list (member_key, name, path, idx) VALUES ( ?, ?, ?, ?)",
+				[obj.fileName, obj.userName, __dirname+"/zipfiles/"+obj.fileName, idx],
+					function(sql_inserr, mysqlres){
+						c.end();
+						if(sql_inserr){
+						console.error(sql_inserr);
+						return res.status(500).json({ result: "ERROR", err: sql_inserr});
+					}
+					io.emit('message', JSON.stringify( [ obj.fileName, 
+					JSON.stringify({ headers:req.headers, body: req.body})]));
+					return res.json({ result : "OK"});
+				});	
+
 		});
+		//python function 호출
+		        
 
 	});
 	
