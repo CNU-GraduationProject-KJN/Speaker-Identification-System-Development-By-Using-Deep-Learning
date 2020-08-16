@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_custom_alertdialog1"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:weightSum="10">
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="9.2"
+        android:gravity="center"
+        android:text="신원 삭제시\n본 시스템을 이용할 수 없습니다.\n정말로 신원을 삭제하시겠습니까?"
+        android:textColor="#000000"
+        android:textSize="18dp"
+        android:lineSpacingExtra ="5dp" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.8"
+        android:weightSum="9.1">
+
+        <Button
+            android:id="@+id/nbutton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="4.5"
+            android:background="#00000000"
+            android:textColor="#9E9E9E"
+            android:text="아니오"
+            android:textSize="18dp"/>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".1" />
+
+        <Button
+            android:id="@+id/pbutton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="4.5"
+            android:background="#00000000"
+            android:text="예"
+            android:textColor="#ffffff"
+            android:textSize="18dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>
