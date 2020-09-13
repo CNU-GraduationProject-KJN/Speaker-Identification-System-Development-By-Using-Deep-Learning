@@ -156,7 +156,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="220"
-                    android:text="총체주의는 특정 가설에 대해 제기되는 반박이 \n결정적인 것처럼 보이더라도 그 가설이 실용적으로 \n필요하다고 인정되면 언제든 그와 같은 반박을 \n피하는 방법을 강구하여 그 가설을 받아들일 수 있다. \n그러나 총체주의는 \A이면서 동시에 A가 아닐 수는 \n없다와 같은 논리학의 법칙처럼 아무도 의심하지 않는\n지식은 분석 명제로 분류해야 하는 것이 아니냐는 \n비판에 답해야 하는 어려움이 있다."
+                    android:text="총체주의는 특정 가설에 대해 제기되는 반박이 \n결정적인 것처럼 보인다."
                     android:textSize="16dp"
                     android:lineSpacingExtra ="5dp" />
 
