@@ -127,3 +127,55 @@ def model_testing():
             return None
         else:
             return str(list_dir[np.argmax(pred)])
+               
+               
+def model_retraining(path, key):
+    OUTPUT_DIR_TRAIN = path + '/' + key + '/preprocessed/pickle/train'
+    OUTPUT_DIR_TEST = path + '/' + key + '/preprocessed/pickle/test'
+
+    list_dir = os.listdir(path.split('/')[0])
+    num_classes = len(list_dir)
+
+    if os.path.isfile('Identity_Predictionor.h5') is True:
+        model = load_model('Identity_Predictionor.h5')
+        if model is None:
+            exit('Something went wrong!!')
+
+    else:
+        model = m5(num_classes)
+        if model is None:
+            exit('Something went wrong!!')
+
+        model.compile(optimizer='adam',
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+
+    print(model.summary())
+
+    new_model = Sequential()
+    for layer in model.layers[:-1]:
+        new_model.add(layer)
+    new_model.add(Dense(num_classes, activation='softmax'))
+    new_model.summary()
+    new_model.compile(optimizer='adam',
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+
+    train_files = glob(os.path.join(OUTPUT_DIR_TRAIN, '**.pkl'))
+    print(os.path.join(OUTPUT_DIR_TRAIN, '**.pkl'))
+    x_tr, y_tr = get_data(train_files)
+    y_tr = to_categorical(y_tr, num_classes=num_classes)
+
+    print("x_tr: ", x_tr.shape)
+    print("y_tr: ", y_tr.shape)
+    test_files = glob(os.path.join(OUTPUT_DIR_TEST, '**.pkl'))
+    x_te, y_te = get_data(test_files)
+    y_te = to_categorical(y_te, num_classes=num_classes)
+    print("x_te: ", x_te.shape)
+    print("y_te: ", y_te.shape)
+    # if the accuracy does not increase over 10 epochs, reduce the learning rate by half.
+    reduce_lr = ReduceLROnPlateau(monitor='val_accuracy', factor=0.5, patience=10, min_lr=0.00005, verbose=1)
+    batch_size = 128
+    history = new_model.fit(x=x_tr, y=y_tr, batch_size=16, epochs=100, verbose=2, shuffle=True,
+                            validation_data=(x_te, y_te), callbacks=[reduce_lr])
+    new_model.save('Identity_Predictionor')
