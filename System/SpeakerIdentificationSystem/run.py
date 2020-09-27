@@ -2,6 +2,19 @@
 from DataPreprocess.audio_preprocessor import AudioPreprocessor
 from speaker_predictionor import model_training
 
+def upload():
+    print("upload")
+    data_dir = '/home/una/Audio_For_Speaker-Identification-System-Development-By-Using-Deep-Learning/train/unzipfiles'
+    path, key_list = AudioPreprocessor(data_dir, True).run()
+    model_training(path, key_list)
+
+def identify():
+   print("identify")
+   data_dir = '/home/una/Audio_For_Speaker-Identification-System-Development-By-Using-Deep-Learning/train/unzipfiles'
+   AudioPreprocessor(data_dir, False).run()
+   model_testing()
+
+
 def main():
     # while True:
         print("------menu------")
