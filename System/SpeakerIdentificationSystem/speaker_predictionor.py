@@ -16,11 +16,16 @@ import os
 from glob import glob
 import tensorflow
 
-DATA_AUDIO_DIR = './train_data'
+from DB.db_controller import get_member_count_from_db, get_member_key_from_db
+
+DATA_AUDIO_DIR = './train'
 list_dir = os.listdir(DATA_AUDIO_DIR)
 list_dir.sort()
 
 class_ids = {list_dir[i]: i for i in range(len(list_dir))}
+
+TARGET_SR = 8000
+AUDIO_LENGTH = TARGET_SR * 3
 
 def m5(num_classes):
     print("Class Num", num_classes)
@@ -81,35 +86,38 @@ def get_data(file_list):
     return np.array(x), np.array(y)
 
 
-def model_training():
-    
-    num_classes = len(list_dir)
-    model = m5(num_classes)
-    
-    if model is None:
-        exit('Something went wrong!!')
+def model_training(path, key_list):
+    for key in key_list:
+        OUTPUT_DIR_TRAIN = path + '/' + key + '/preprocessed/pickle/train'
+        OUTPUT_DIR_TEST = path + '/' + key + '/preprocessed/pickle/test'
 
-    model.compile(optimizer='adam',
+        num_classes = get_member_count_from_db()
+        model = m5(num_classes)
+    
+        if model is None:
+            exit('Something went wrong!!')
+
+        model.compile(optimizer='adam',
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
-    print(model.summary())
+        print(model.summary())
 
 
-    train_files = glob(os.path.join(OUTPUT_DIR_TRAIN, '**.pkl'))
-    print(os.path.join(OUTPUT_DIR_TRAIN, '**.pkl'))
-    x_tr, y_tr = get_data(train_files)
-    y_tr = to_categorical(y_tr, num_classes=num_classes)
+        train_files = glob(os.path.join(OUTPUT_DIR_TRAIN, '**.pkl'))
+        print(os.path.join(OUTPUT_DIR_TRAIN, '**.pkl'))
+        x_tr, y_tr = get_data(train_files)
+        y_tr = to_categorical(y_tr, num_classes=num_classes)
 
-    test_files = glob(os.path.join(OUTPUT_DIR_TEST, '**.pkl'))
-    x_te, y_te = get_data(test_files)
-    y_te = to_categorical(y_te, num_classes=num_classes)
+        test_files = glob(os.path.join(OUTPUT_DIR_TEST, '**.pkl'))
+        x_te, y_te = get_data(test_files)
+        y_te = to_categorical(y_te, num_classes=num_classes)
 
-    # if the accuracy does not increase over 10 epochs, reduce the learning rate by half.
-    reduce_lr = ReduceLROnPlateau(monitor='val_accuracy', factor=0.5, patience=10, min_lr=0.00005, verbose=1)
-    batch_size = 128
-    history = model.fit(x=x_tr, y=y_tr, batch_size=16, epochs=100, verbose=2, shuffle=True, validation_data=(x_te, y_te), callbacks=[reduce_lr])
-    model.save('Identity_Predictionor.h5')
+        # if the accuracy does not increase over 10 epochs, reduce the learning rate by half.
+        reduce_lr = ReduceLROnPlateau(monitor='val_accuracy', factor=0.5, patience=10, min_lr=0.00005, verbose=1)
+        model.fit(x=x_tr, y=y_tr, batch_size=16, epochs=100, verbose=2, shuffle=True, validation_data=(x_te, y_te), callbacks=[reduce_lr])
+        model.save('Identity_Predictionor.h5')
 
+# 수정필요*****************
 def model_testing():
     val_files = glob(os.path.join(OUTPUT_DIR_RESAMPLED_VAL_TRAIN, '**.pkl'))
     val_files.sort()
@@ -123,18 +131,19 @@ def model_testing():
     yhat = model.predict(x_val)
 
     for i,pred in enumerate(yhat) :
-        if str(np.max(pred) < 0.95:
+        if np.max(pred) < 0.95:
             return None
         else:
-            return str(list_dir[np.argmax(pred)])
-               
+            return str(get_member_key_from_db(np.argmax(pred)))
+            # return str(list_dir[np.argmax(pred)])
+
                
 def model_retraining(path, key):
     OUTPUT_DIR_TRAIN = path + '/' + key + '/preprocessed/pickle/train'
     OUTPUT_DIR_TEST = path + '/' + key + '/preprocessed/pickle/test'
 
     list_dir = os.listdir(path.split('/')[0])
-    num_classes = len(list_dir)
+    num_classes = get_member_count_from_db()
 
     if os.path.isfile('Identity_Predictionor.h5') is True:
         model = load_model('Identity_Predictionor.h5')
@@ -178,4 +187,4 @@ def model_retraining(path, key):
     batch_size = 128
     history = new_model.fit(x=x_tr, y=y_tr, batch_size=16, epochs=100, verbose=2, shuffle=True,
                             validation_data=(x_te, y_te), callbacks=[reduce_lr])
-    new_model.save('Identity_Predictionor')
+    new_model.save('Identity_Predictionor.h5')
