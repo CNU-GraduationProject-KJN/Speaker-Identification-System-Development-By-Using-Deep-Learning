@@ -11,12 +11,7 @@ class AudioPreprocessor(object):
         self.data_dir = data_dir
         self.train = train
 
-
     def run(self):
-
         voice_active_detecting(self.data_dir)
         if self.train: speed_augmentation(self.data_dir)
         convert_data(self.data_dir)
-
-
-

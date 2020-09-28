@@ -1,6 +1,7 @@
 # Main
 from DataPreprocess.audio_preprocessor import AudioPreprocessor
-from speaker_predictionor import model_training
+from speaker_predictionor import model_training, model_testing
+
 
 def upload():
     print("upload")
