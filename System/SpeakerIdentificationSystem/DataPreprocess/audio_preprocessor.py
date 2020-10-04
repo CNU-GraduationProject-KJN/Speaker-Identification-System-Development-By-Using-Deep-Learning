@@ -3,6 +3,7 @@ from pathlib import Path
 
 from DataPreprocess.audio_silence import voice_active_detecting
 from DataPreprocess.audio_augmentation import speed_augmentation
+from DataPreprocess.pcm_to_wav import convert_train_file, convert_test_file
 from DataPreprocess.wav_to_pickle import convert_data
 
 
@@ -12,6 +13,16 @@ class AudioPreprocessor(object):
         self.train = train
 
     def run(self):
-        voice_active_detecting(self.data_dir)
-        if self.train: speed_augmentation(self.data_dir)
-        convert_data(self.data_dir)
+        print("run")
+        # if self.train:
+        #     key = convert_train_file()
+        # else:
+        #     key = convert_test_file()
+        key='45a3cd1e53db5a9d508f38f77a6f34e2'
+        path = self.data_dir+'/'+key
+
+        voice_active_detecting(path)
+        if self.train:
+            speed_augmentation(path)
+        convert_data(path, key)
+        return key

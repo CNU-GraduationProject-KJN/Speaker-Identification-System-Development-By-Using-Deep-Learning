@@ -25,6 +25,18 @@ def get_member_list_from_db():
         conn.close()
 
 
+def get_last_member_key_and_path_from_db():
+    conn = pymysql.connect(host='localhost', user='root', password='kjn', db='cnu_kjn_graduate', charset='utf8')
+    try:
+        with conn.cursor() as curs:
+            sql = "select member_key, path from member_list order by idx desc limit 1"
+            curs.execute(sql)
+            rs = curs.fetchall()
+        return rs
+    finally:
+        conn.close()
+
+
 def get_member_count_from_db():
     conn = pymysql.connect(host='localhost', user='root', password='kjn', db='cnu_kjn_graduate', charset='utf8')
     try:
