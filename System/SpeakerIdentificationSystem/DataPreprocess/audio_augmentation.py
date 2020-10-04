@@ -7,7 +7,7 @@ FIRST_QUANTILE = 22.68845
 SECOND_QUANTILE = 27.713794140624998
 THIRD_QUANTILE = 33.6282
 
-def speed_augmentation(data_dir=None):
+def speed_augmentation(data_dir):
     file_path = data_dir + '/preprocessed/wav'
     file_list = os.listdir(file_path)
     file_list.sort()
