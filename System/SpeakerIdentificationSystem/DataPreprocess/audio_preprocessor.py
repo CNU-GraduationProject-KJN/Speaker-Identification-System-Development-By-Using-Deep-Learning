@@ -18,7 +18,7 @@ class AudioPreprocessor(object):
         #     key = convert_train_file()
         # else:
         #     key = convert_test_file()
-        key='45a3cd1e53db5a9d508f38f77a6f34e2'
+        key='fsjdkfjsldk'
         path = self.data_dir+'/'+key
 
         voice_active_detecting(path)

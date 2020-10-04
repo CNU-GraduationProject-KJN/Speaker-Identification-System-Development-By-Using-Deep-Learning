@@ -2,7 +2,7 @@ import os
 import wave
 from shutil import rmtree
 
-from DB.db_controller import get_last_member_key_and_path_from_db
+from DB.db_controller import get_last_member_path_from_db
 
 
 def pcm2wav(pcm_file, wav_file, channels=1, bit_depth=16, sampling_rate=16000):
@@ -41,9 +41,8 @@ def del_folder(path):
 
 
 def convert_train_file():
-    rs = get_last_member_key_and_path_from_db()
-    file_origin_path = rs[0][1] + "/origin/"
-    key = rs[0][0]
+    path = get_last_member_path_from_db()
+    file_origin_path = path + "/origin/"
 
     mkdir_p(file_origin_path)
     file_list = os.listdir(file_origin_path)
@@ -52,7 +51,6 @@ def convert_train_file():
             pcm2wav(file_origin_path + file, file_origin_path + file[0] + '.wav', 1, 16, 16000)
             os.remove(file_origin_path + file)
 
-    return key
 
 
 def convert_test_file():
@@ -61,7 +59,7 @@ def convert_test_file():
     path = data_dir+'/'+key
 
     mkdir_p(path)
-    file_list = os.listdir(path+ "/origin/")
+    file_list = os.listdir(path + "/origin/")
     for file in file_list:
         if file[-4:] == '.pcm':
             pcm2wav(path + file, path + file[0] + '.wav', 1, 16, 16000)
