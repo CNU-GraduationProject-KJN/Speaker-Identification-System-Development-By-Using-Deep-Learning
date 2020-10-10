@@ -1,10 +1,12 @@
 *.pyc
 *.xml
 
-./System/SpeakerIdentificationSystem/.idea
+/System/SpeakerIdentificationSystem/.idea
 
-./System/SpeakerIdentificationSystem/venv
+/System/SpeakerIdentificationSystem/venv
 
+/System/SpeakerIdentificationSystem/DataPreprocess/__pycache__
 
-./System/SpeakerIdentificationSystem/DataPreprocess/__pycache__
+/System/SpeakerIdentificationSystem/__pycache__
 
+/System/SpeakerIdentificationSystem/DB/__pycache__
