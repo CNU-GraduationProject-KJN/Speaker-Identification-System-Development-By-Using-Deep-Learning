@@ -1,5 +1,5 @@
 *.pyc
-*.xml
+.xml
 
 /System/SpeakerIdentificationSystem/.idea
 
