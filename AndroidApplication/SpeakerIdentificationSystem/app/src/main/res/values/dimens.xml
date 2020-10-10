@@ -1,9 +1,0 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-
-    <dimen name="dialog_fragment_width" tools:override="true">325dp</dimen>
-    <dimen name="dialog_fragment_height" tools:override="true">218dp</dimen>
-
-    <dimen name="dialog_select_width" tools:override="true">450dp</dimen>
-    <dimen name="dialog_select_height" tools:override="true">170dp</dimen>
-
-</resources>
