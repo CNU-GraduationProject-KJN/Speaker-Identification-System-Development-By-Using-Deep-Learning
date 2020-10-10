@@ -6,7 +6,7 @@ import librosa
 from constants import *
 from shutil import rmtree
 
-from DB.db_controller import get_member_idx_from_db
+from DB.DB_Controller import get_member_idx_from_db
 
 PAD_SIZE = 0
 TARGET_SR = 8000

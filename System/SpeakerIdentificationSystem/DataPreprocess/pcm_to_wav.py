@@ -2,7 +2,7 @@ import os
 import wave
 from shutil import rmtree
 
-from DB.db_controller import get_last_member_path_from_db
+from DB.DB_Controller import get_last_member_path_from_db, get_last_member_key_from_db
 
 
 def pcm2wav(pcm_file, wav_file, channels=1, bit_depth=16, sampling_rate=16000):
@@ -50,6 +50,10 @@ def convert_train_file():
         if file[-4:] == '.pcm':
             pcm2wav(file_origin_path + file, file_origin_path + file[0] + '.wav', 1, 16, 16000)
             os.remove(file_origin_path + file)
+
+    return get_last_member_key_from_db()
+
+
 
 
 
