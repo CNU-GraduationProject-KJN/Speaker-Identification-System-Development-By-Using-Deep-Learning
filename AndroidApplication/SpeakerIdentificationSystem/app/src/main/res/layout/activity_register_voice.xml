@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:weightSum="640"
     android:background="#ffffff"
-    tools:context=".Register.RegisterAudioActivity">
+    tools:context=".Register.RegisterVoiceActivity">
 
     <FrameLayout
         android:layout_width="match_parent"

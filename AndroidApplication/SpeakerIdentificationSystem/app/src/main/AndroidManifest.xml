@@ -18,13 +18,17 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity android:name=".Register.RegisterNameActivity"></activity>
-        <activity android:name=".Register.RegisterAudioActivity" />
+        <activity android:name=".Register.RegisterVoiceActivity" />
+        <activity android:name=".Register.RegisterLoadingActivity" />
         <activity android:name=".Modify.ModifyNameActivity" />
-        <activity android:name=".Modify.ModifyLoadingActivity" />
-        <activity android:name=".Modify.ModifyAudioActivity" />
+        <activity android:name=".Modify.ModifyNameLoadingActivity" />
+        <activity android:name=".Modify.ModifyVoiceLoadingActivity" />
+        <activity android:name=".Modify.ModifyVoiceActivity" />
         <activity android:name=".HomeActivity" />
         <activity android:name=".Lookup.LookupActivity" />
         <activity android:name=".Lookup.LookupLoadingActivity" />
+        <activity android:name=".Lookup.LookupLoading2Activity" />
+        <activity android:name=".Remove.RemoveLoadingActivity" />
         <activity
             android:name=".MainLoadingActivity"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />

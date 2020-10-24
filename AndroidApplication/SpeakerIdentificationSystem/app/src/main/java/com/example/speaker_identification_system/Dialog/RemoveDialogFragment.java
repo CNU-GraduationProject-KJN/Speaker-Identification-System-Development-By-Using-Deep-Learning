@@ -2,6 +2,7 @@ package com.example.speaker_identification_system.Dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -9,13 +10,13 @@ import android.support.v4.app.DialogFragment;
 import android.view.View;
 
 import com.example.speaker_identification_system.R;
+import com.example.speaker_identification_system.Remove.RemoveLoadingActivity;
 
 public class RemoveDialogFragment extends DialogFragment implements View.OnClickListener {
 
-
+    String mUserInfo;
 
     public static RemoveDialogFragment newInstance() {
-
         RemoveDialogFragment fragment = new RemoveDialogFragment();
         return fragment;
     }
@@ -41,6 +42,11 @@ public class RemoveDialogFragment extends DialogFragment implements View.OnClick
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View view = getActivity().getLayoutInflater().inflate(R.layout.fragment_remove_dialog, null);
 
+        //RequestActivity에서 전달한 번들 저장
+        Bundle bundle = getArguments();
+        // 번들 안의 텍스트 불러오기
+        mUserInfo = bundle.getString("mUserInfo");
+
         view.findViewById(R.id.pbutton).setOnClickListener(this);
         view.findViewById(R.id.nbutton).setOnClickListener(this);
 
@@ -62,8 +68,9 @@ public class RemoveDialogFragment extends DialogFragment implements View.OnClick
 
         switch (v.getId()) {
             case R.id.pbutton:
-//                    Intent intent = new Intent(getActivity().getApplication(), MemberInfoActivity.class);
-//                    startActivity(intent);
+                Intent intent = new Intent(getActivity().getApplication(), RemoveLoadingActivity.class);
+                intent.putExtra("mUserInfo",mUserInfo);
+                startActivity(intent);
                 dismissDialog();
                 break;
             case R.id.nbutton:

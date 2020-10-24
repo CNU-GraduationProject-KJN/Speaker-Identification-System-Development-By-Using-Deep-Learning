@@ -113,7 +113,7 @@ public class RegisterNameActivity extends AppCompatActivity {
         } else if(check_empty.getVisibility() == View.VISIBLE){
             Toast.makeText(getApplicationContext(),"회원정보 수집에 동의해주세요.",Toast.LENGTH_SHORT).show();
         }else{
-            Intent intent = new Intent(this, RegisterAudioActivity.class);
+            Intent intent = new Intent(this, RegisterVoiceActivity.class);
             intent.putExtra("UserName",name);
             intent.putExtra("UserInfo",getMD5(id1+id2+"_"+name));
             startActivity(intent);

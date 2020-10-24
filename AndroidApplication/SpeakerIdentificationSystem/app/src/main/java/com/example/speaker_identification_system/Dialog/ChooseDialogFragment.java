@@ -9,12 +9,13 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 
-import com.example.speaker_identification_system.Modify.ModifyAudioActivity;
+import com.example.speaker_identification_system.Modify.ModifyVoiceActivity;
 import com.example.speaker_identification_system.Modify.ModifyNameActivity;
 import com.example.speaker_identification_system.R;
 
 public class ChooseDialogFragment extends DialogFragment implements View.OnClickListener {
 
+    String mUserInfo;
 
     public static ChooseDialogFragment newInstance() {
         ChooseDialogFragment fragment = new ChooseDialogFragment();
@@ -42,6 +43,10 @@ public class ChooseDialogFragment extends DialogFragment implements View.OnClick
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View view = getActivity().getLayoutInflater().inflate(R.layout.fragment_choose_dialog, null);
 
+        //RequestActivity에서 전달한 번들 저장
+        Bundle bundle = getArguments();
+        // 번들 안의 텍스트 불러오기
+        mUserInfo = bundle.getString("mUserInfo");
 
         view.findViewById(R.id.btn_top).setOnClickListener(this);
         view.findViewById(R.id.btn_bottom).setOnClickListener(this);
@@ -65,11 +70,13 @@ public class ChooseDialogFragment extends DialogFragment implements View.OnClick
         switch (v.getId()) {
             case R.id.btn_top:
                 intent = new Intent(getActivity().getApplication(), ModifyNameActivity.class);
+                intent.putExtra("mUserInfo",mUserInfo);
                 startActivity(intent);
                 dismissDialog();
                 break;
             case R.id.btn_bottom:
-                intent = new Intent(getActivity().getApplication(), ModifyAudioActivity.class);
+                intent = new Intent(getActivity().getApplication(), ModifyVoiceActivity.class);
+                intent.putExtra("mUserInfo",mUserInfo);
                 startActivity(intent);
                 dismissDialog();
                 break;

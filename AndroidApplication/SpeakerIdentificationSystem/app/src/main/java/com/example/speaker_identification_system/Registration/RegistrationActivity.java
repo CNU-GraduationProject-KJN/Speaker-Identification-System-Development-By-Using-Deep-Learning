@@ -93,6 +93,7 @@ public class RegistrationActivity extends AppCompatActivity {
     private ArrayList<String> mFileNameList;
 
     private CompressFiles mCompressFiles;
+    private int TIMEOUT_VALUE = 50 * 5 * 1000; // epoch 50 (5 sec per 1 epoch)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,8 +111,6 @@ public class RegistrationActivity extends AppCompatActivity {
         mNameText = (android.support.design.widget.TextInputEditText) findViewById(R.id.user_name_);
         mIdentificationNumber = (android.support.design.widget.TextInputEditText) findViewById(R.id.identification_number_);
         mSetInfoButton = (Button) findViewById(R.id.setID_);
-
-
 
         //for Checking User Voice
         mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, mSampleRate, mChannelCount, mAudioFormat, mBufferSize, AudioTrack.MODE_STREAM); // AudioTrack 생성
@@ -131,11 +130,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 mRecordButton.setText("Done");
                 mRecordStatus = true;
 
-                mRecordText.setText("\n 총체주의는 특정 가설에 대해 제기되는 반박이 결정적인 것처럼 보이더라도\n" +
-                        "그 가설이 실용적으로 필요하다고 인정되면\n" +
-                        "언제든 그와 같은 반박을 피하는 방법을 강구하여 그 가설을 받아들일 수 있다. 그러나 총체주의는 \"A이면서 동시에 A가 아닐 수는 없다.\"와 같은 논리학의 법칙처럼\n" +
-                        "아무도 의심하지 않는 지식은 분석 명제로 분류해야 하는 것이 아니냐는 비판에\n" +
-                        "답해야 하는 어려움이 있다.\n");
+                mRecordText.setText("\n 총체주의는 특정 가설에 대해 제기되는 반박이 결정적인 것처럼 보인다.\n");
 
 
                 if(mAudioRecorder == null) mAudioRecorder = new AudioRecord(mAudioSource, mSampleRate, mChannelCount, mAudioFormat, mBufferSize);
@@ -279,6 +274,8 @@ public class RegistrationActivity extends AppCompatActivity {
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
                 connection.setUseCaches(false);
+                connection.setConnectTimeout(TIMEOUT_VALUE);
+                connection.setReadTimeout(TIMEOUT_VALUE);
 
                 //Connecion header setting
                 connection.setRequestMethod("POST");

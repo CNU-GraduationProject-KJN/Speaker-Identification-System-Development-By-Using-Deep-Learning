@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:weightSum="640"
     android:background="#ffffff"
-    tools:context=".Modify.ModifyAudioActivity">
+    tools:context=".Modify.ModifyVoiceActivity">
 
     <FrameLayout
         android:layout_width="match_parent"

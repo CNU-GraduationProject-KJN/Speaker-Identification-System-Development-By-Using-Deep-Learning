@@ -1,4 +1,4 @@
-package com.example.speaker_identification_system.Lookup;
+package com.example.speaker_identification_system.Remove;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -6,66 +6,50 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.speaker_identification_system.Dialog.UnknownDialogFagment;
 import com.example.speaker_identification_system.HomeActivity;
+import com.example.speaker_identification_system.Lookup.LookupLoadingActivity;
+import com.example.speaker_identification_system.MainActivity;
+import com.example.speaker_identification_system.Modify.ModifyNameLoadingActivity;
 import com.example.speaker_identification_system.R;
 
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
-public class LookupLoadingActivity extends AppCompatActivity {
+public class RemoveLoadingActivity extends AppCompatActivity {
 
-    private static final String TAG = "Lookup";
-    private static final String mServerUrl = "http://168.188.126.212:3000/identify/";
+    private static final String TAG = "Remove";
+    private static final String mServerUrl = "http://168.188.126.212:3000/delete/";
 
-    private ArrayList<String> mFilePathList;
-    private String check_UserInfo;
+    private RemoveLoadingActivity.CompressFiles mCompressFiles;
 
-    private String mUserName="";
-    private String mUserInfo="";
+    private String mUserInfo;
     private String result;
-
-    private String mzipFilePath;
-    private File file;
-
-    private LookupLoadingActivity.CompressFiles mCompressFiles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_lookup_loading);
+        setContentView(R.layout.activity_remove_loading);
 
         Intent get_intent = getIntent();
-        check_UserInfo = (String)get_intent.getStringExtra("check_UserInfo");
-        mFilePathList = (ArrayList<String>)get_intent.getSerializableExtra("mFilePathList");
-
-        //zip file name , not full path
-        mzipFilePath = check_UserInfo +".zip";
+        mUserInfo = (String)get_intent.getStringExtra("mUserInfo");
 
         // compress and transfer
-        mCompressFiles = new LookupLoadingActivity.CompressFiles();
+        mCompressFiles = new RemoveLoadingActivity.CompressFiles();
         mCompressFiles.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
     }
@@ -73,28 +57,28 @@ public class LookupLoadingActivity extends AppCompatActivity {
     public void onBackPressed() {
         //super.onBackPressed();
     }
-    public void lookup_result(){
+
+    public void delete_result(){
         if(result.equals("OK")){
-            Intent intent = new Intent(this, HomeActivity.class);
-            intent.putExtra("mUserInfo",mUserInfo);
-            intent.putExtra("mUserName",mUserName);
+            Toast.makeText(getApplicationContext(), "신원삭제완료", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }else{
-            UnknownDialogFagment dialog = UnknownDialogFagment.newInstance();
-            dialog.setCancelable(false);
-            dialog.show(getSupportFragmentManager(), "dialog");
+            Toast.makeText(getApplicationContext(), "오류: 신원삭제실패", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
+
     // AsyncTask의 파라미터 3개는 각각 onPreExecute,onProgressUpdate,onPostExecute
     private class CompressFiles extends AsyncTask<Void, Integer, Boolean> {
 
         ProgressDialog asyncDialog;
-        File file;
+//        File file;
         @Override
         protected void onPreExecute() {
-            asyncDialog = new ProgressDialog(LookupLoadingActivity.this);
+            asyncDialog = new ProgressDialog(RemoveLoadingActivity.this);
             asyncDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            asyncDialog.setMessage("압축중...");
+            asyncDialog.setMessage("파일 준비 중...");
             asyncDialog.setMax(100);
             asyncDialog.setCancelable(false);
             asyncDialog.setCanceledOnTouchOutside(false);
@@ -109,16 +93,7 @@ public class LookupLoadingActivity extends AppCompatActivity {
 
         protected Boolean doInBackground(Void... urls) {
 
-            file = getOutputZipFile(mzipFilePath);
-            Log.d(TAG, "fileName : "+file.toString());
-
-            String zipFileName;
-            if (file != null) {
-                zipFileName = file.getAbsolutePath();
-                if (mFilePathList.size() > 0) {
-                    zip(zipFileName);
-                }
-            }
+//            Log.d(TAG, "fileName : "+file.toString());
 
             publishProgress(0, 100, 1);
             final boolean[] success = {false};
@@ -133,12 +108,12 @@ public class LookupLoadingActivity extends AppCompatActivity {
             BufferedReader reader = null;
 
             try{
-                String urlServer = mServerUrl + check_UserInfo;
+                String urlServer = mServerUrl + mUserInfo;
                 mCompressFiles.publish(30, 30);
                 jsonObject = new JSONObject();
-                jsonObject.put("fileName", check_UserInfo);
-                jsonObject.put("file", convertFileToString(file));
-                Log.d(TAG, convertFileToString(file).substring(0, 100));
+                jsonObject.put("fileName", mUserInfo);
+
+                Log.d(TAG, "url : "+ urlServer);
 
                 url = new URL(urlServer);
                 //Connection
@@ -195,15 +170,11 @@ public class LookupLoadingActivity extends AppCompatActivity {
 
                     if(result.equals("OK")){
                         success[0] = true;
-                        mUserName=(String) responseJSON.get("name");
-                        mUserInfo=(String) responseJSON.get("id");
                     }
 
                     Log.i(TAG, "DATA response = " + result);
                 }
                 Log.d(TAG, "status : "+ status);
-
-                mFilePathList = new ArrayList<>();
 
             }catch (Exception e){
                 e.printStackTrace();
@@ -216,19 +187,14 @@ public class LookupLoadingActivity extends AppCompatActivity {
                 }
             }
 
-            file.deleteOnExit(); // delete zip file
-            lookup_result();
+//            file.deleteOnExit(); // delete zip file
+
+            delete_result();
             return success[0];
         }
 
         public void publish(int progressRate, int taskFlag) {
-            if(taskFlag == 0){
-                int totalNumberOfFiles = mFilePathList.size();
-                publishProgress(progressRate, totalNumberOfFiles, taskFlag);
-            }else{
-                publishProgress(progressRate, 100, taskFlag);
-            }
-
+            publishProgress(progressRate, 100, taskFlag);
         }
 
         protected void onProgressUpdate(Integer... progress) {
@@ -239,10 +205,9 @@ public class LookupLoadingActivity extends AppCompatActivity {
 
                 asyncDialog.setProgress(progress[0]);
                 asyncDialog.setMax(progress[1]);
-                String msg = (progress[2] == 0) ? "압축 중" :
-                        (progress[2] == 30) ? "파일 준비 중" :
-                                (30 < progress[2] && progress[2] <= 70) ? "연결 중" :
-                                        (70 < progress[2] && progress[2] < 100) ? "전송 중" : "전송 완료";
+                String msg = (progress[2] == 0) ? "파일 준비 중" :
+                        (30 < progress[2] && progress[2] <= 70) ? "연결 중" :
+                                (70 < progress[2] && progress[2] < 100) ? "전송 중" : "전송 완료";
 
                 asyncDialog.setMessage(msg);
             } catch (Exception ignored) {
@@ -264,53 +229,4 @@ public class LookupLoadingActivity extends AppCompatActivity {
         mCompressFiles.publish(progressRate, taskFlag);
     }
 
-    public static File getOutputZipFile(String fileName) {
-
-        File mediaStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                return null;
-            }
-        }
-        Log.d(TAG, "PATH : "+mediaStorageDir.getPath() + File.separator + fileName);
-        return new File(mediaStorageDir.getPath() + File.separator + fileName);
-    }
-
-
-    private static final int BUFFER = 2048;
-
-    //compress files into path : zipFilePath
-    public void zip(String zipFilePath) {
-        try {
-            BufferedInputStream origin;
-            FileOutputStream dest = new FileOutputStream(zipFilePath);
-
-            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
-
-            byte data[] = new byte[BUFFER];
-            for (int i = 0; i < mFilePathList.size(); i++) {
-                setProgress(i + 1, 0);
-
-                FileInputStream fis = new FileInputStream(mFilePathList.get(i));
-                origin = new BufferedInputStream(fis, BUFFER);
-                ZipEntry entry = new ZipEntry(mFilePathList.get(i).substring(mFilePathList.get(i).lastIndexOf("/") + 1));
-                out.putNextEntry(entry);
-                int count;
-                while ((count = origin.read(data, 0, BUFFER)) != -1) {
-                    out.write(data, 0, count);
-                }
-                origin.close();
-            }
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    //covert file to base64 encoding
-    private String convertFileToString(File file) throws IOException{
-        byte[] bytes = Files.readAllBytes(file.toPath());
-        return new String(Base64.encode(bytes, Base64.DEFAULT));
-    }
 }
