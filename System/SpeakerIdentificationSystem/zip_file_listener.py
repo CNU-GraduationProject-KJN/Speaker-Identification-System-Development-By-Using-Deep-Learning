@@ -4,7 +4,7 @@ import zipfile
 import sys
 from shutil import rmtree
 from run import upload
-from run import identify
+from run import identify, modify_voice
 #from run import reupload
 
 zipfile_name = sys.argv[1]
@@ -12,7 +12,13 @@ flag = sys.argv[2]
 
 print(zipfile_name, flag)
 
-dir_name = '/home/una/Audio_For_Speaker-Identification-System-Development-By-Using-Deep-Learning/train/'
+dir_name = '/home/una/Audio_For_Speaker-Identification-System-Development-By-Using-Deep-Learning/'
+
+if int(flag) == 1 or int(flag) == 3:
+    dir_name = dir_name + 'train/'
+elif int(flag) == 2:
+    dir_name = dir_name + 'val/'
+
 zipfile_path_name = dir_name + 'zipfiles/'
 unzipfile_path_name = dir_name + 'unzipfiles/'
 
@@ -37,7 +43,7 @@ def del_folder(path):
     except OSError:
         pass
 
-le True:
+while True:
     upload_filename = zipfile_path_name + zipfile_name
     batch_filename = unzipfile_path_name + zipfile_name
 
@@ -62,6 +68,10 @@ if int(flag) == 1:
 elif int(flag) == 2:
     print("check user")
     identify()
+elif int(flag) == 3:
+    print("check user")
+    modify_voice(zipfile_name)
+
 #else :
 #    reupload(zipfile_name)
 
