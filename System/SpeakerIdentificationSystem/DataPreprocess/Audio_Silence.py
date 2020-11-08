@@ -38,10 +38,12 @@ def removeNoEnergy(segmentation, audio, silenced_data_path):
 
     save_file(output_path, np.array(adjusted_y), sr)
 
+
 def save_file(save_path, silenced_data, sr):
     # print("Output Audio Length: {}\n".format(len(adjusted_y)))
     # print("Output File Name: {}\n".format(save_path))
     librosa.output.write_wav(save_path, silenced_data, sr)
+
 
 warnings.filterwarnings(action='ignore')
 def voice_active_detecting(data_dir):

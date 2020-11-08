@@ -1,29 +1,25 @@
+from pathlib import Path
+
 from tensorflow.keras.callbacks import ReduceLROnPlateau
 from tensorflow.keras.utils import to_categorical
 import tensorflow.keras.backend as K
 from tensorflow.keras import regularizers
-from tensorflow.keras.layers import Lambda, Bidirectional, LSTM
+from tensorflow.keras.layers import Lambda
 from tensorflow.keras.layers import Conv1D, MaxPooling1D
 from tensorflow.keras.layers import Activation, Dense
 from tensorflow.keras.layers import BatchNormalization
 from tensorflow.keras.models import Sequential
-from tensorflow import convert_to_tensor
-from tensorflow import expand_dims
 from tensorflow.keras.models import load_model
 import numpy as np
 import pickle
 import os
 from glob import glob
-import tensorflow
 
 from DB.DB_Controller import get_member_count_from_db, get_member_key_from_db, get_member_name_from_db
 
 DATA_AUDIO_DIR = '/home/una/Audio_For_Speaker-Identification-System-Development-By-Using-Deep-Learning/train/unzipfiles'
+MODEL_PATH = '/home/una/Music/Speaker-Identification-System-Development-By-Using-Deep-Learning/System/SpeakerIdentificationSystem/Identity_Predictionor.h5'
 
-# list_dir = os.listdir(DATA_AUDIO_DIR)
-# list_dir.sort()
-
-# class_ids = {list_dir[i]: i for i in range(len(list_dir))}
 
 TARGET_SR = 8000
 AUDIO_LENGTH = TARGET_SR * 3
@@ -89,6 +85,9 @@ def get_data(file_list):
 
 
 def model_training(path, key_list):
+    if Path(MODEL_PATH).is_file():
+        os.remove(MODEL_PATH)
+
     num_classes = get_member_count_from_db()
     x_tr, y_tr = np.array([]), np.array([])
     x_te, y_te = np.array([]), np.array([])
@@ -132,31 +131,31 @@ def model_training(path, key_list):
     reduce_lr = ReduceLROnPlateau(monitor='val_accuracy', factor=0.5, patience=10, min_lr=0.00005, verbose=1)
     model.fit(x=x_tr, y=y_tr, batch_size=16, epochs=50, verbose=2, shuffle=True,
                         validation_data=(x_te, y_te), callbacks=[reduce_lr])
-    model.save('Identity_Predictionor.h5')
+    model.save(MODEL_PATH)
 
 
 def model_testing():
-    data_dir = '/home/una/Audio_For_Speaker-Identification-System-Development-By-Using-Deep-Learning/val'
+    data_dir = '/home/una/Audio_For_Speaker-Identification-System-Development-By-Using-Deep-Learning/val/unzipfiles'
     key = os.listdir(data_dir)[0]
-    path = data_dir+'/'+key
+    path = data_dir + '/' + key
 
-    val_files = glob(os.path.join(path+'/preprocessed/pickle/', '**.pkl'))
+    val_files = glob(os.path.join(path + '/preprocessed/pickle/train/', '**.pkl'))
     val_files.sort()
     print(val_files)
 
     x_val, y_val = get_data(val_files)
     x_val = x_val.reshape(-1, AUDIO_LENGTH, 1)
 
-    model = load_model('Identity_Predictionor.h5')
+    model = load_model(MODEL_PATH)
 
     yhat = model.predict(x_val)
-
-    for i,pred in enumerate(yhat):
+    for i, pred in enumerate(yhat):
         if np.max(pred) < 0.95:
-            # predict_key = get_member_key_from_db(str(np.argmax(pred)))
-            return None, None, 'fail'
-            # return '미지의 화자 두둥 '+str(np.max(pred)*100)+'% '+ str(get_member_name_from_db(predict_key))+" - "+predict_key
+            predict_key = get_member_key_from_db(str(np.argmax(pred)))
+            print('미지의 화자 두둥 ', str(np.max(pred) * 100) + '% ', str(get_member_name_from_db(predict_key)), " - ",
+                  predict_key)
+            return '0', '', 'fail'
         else:
             predict_key = get_member_key_from_db(str(np.argmax(pred)))
+            print('성공 ', str(np.max(pred) * 100) + '% ', str(get_member_name_from_db(predict_key)))
             return predict_key, str(get_member_name_from_db(predict_key)), 'OK'
-            # return str(list_dir[np.argmax(pred)])

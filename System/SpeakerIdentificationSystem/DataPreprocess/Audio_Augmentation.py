@@ -3,9 +3,9 @@ import os
 import nlpaug
 import nlpaug.augmenter.audio as naa
 
-FIRST_QUANTILE = 22.68845
-SECOND_QUANTILE = 27.713794140624998
-THIRD_QUANTILE = 33.6282
+FIRST_QUANTILE = 3.6
+SECOND_QUANTILE = 4.6
+THIRD_QUANTILE = 5.5
 
 def speed_augmentation(data_dir):
     file_path = data_dir + '/preprocessed/wav'
