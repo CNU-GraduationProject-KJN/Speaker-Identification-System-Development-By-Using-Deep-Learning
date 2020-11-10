@@ -39,7 +39,7 @@ import java.util.zip.ZipOutputStream;
 public class RegisterLoadingActivity extends AppCompatActivity {
 
     private static final String TAG = "Register";
-    private static final String mServerUrl = "http://168.188.126.212:3000/upload/";
+    private static final String mServerUrl = "http://XXX.XXX.XXX.XXX:3000/upload/";
 
     private RegisterLoadingActivity.CompressFiles mCompressFiles;
 
