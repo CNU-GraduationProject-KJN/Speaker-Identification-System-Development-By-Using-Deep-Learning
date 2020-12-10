@@ -41,7 +41,7 @@ import java.util.zip.ZipOutputStream;
 public class ModifyVoiceLoadingActivity extends AppCompatActivity {
 
     private static final String TAG = "ModifyVoice";
-    private static final String mServerUrl = "http://168.188.126.212:3000/modifyVoice/";
+    private static final String mServerUrl = "http://xxx.xxx.xxx.xxx:xxxx/modifyVoice/";
 
     private ModifyVoiceLoadingActivity.CompressFiles mCompressFiles;
 

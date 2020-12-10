@@ -55,7 +55,7 @@ import java.util.zip.ZipOutputStream;
 public class RegistrationActivity extends AppCompatActivity {
 
     private static final String TAG = "RegisterAudio";
-    private static final String mServerUrl = "http://168.188.126.212:3000/upload/";
+    private static final String mServerUrl = "http://xxx.xxx.xxx.xxx:xxxx/upload/";
 
     private Button mRecordButton;
     private Button mTransferButton;
