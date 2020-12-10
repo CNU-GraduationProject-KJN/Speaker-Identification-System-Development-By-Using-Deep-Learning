@@ -12,7 +12,7 @@ import com.example.speaker_identification_system.R;
 public class ModifyNameActivity extends AppCompatActivity {
 
     private static final String TAG = "ModifyName";
-    private static final String mServerUrl = "http://168.188.126.212:3000/modifyName/";
+    private static final String mServerUrl = "http://xxx.xxx.xxx.xxx:xxxx/modifyName/";
 
     private String mUserInfo;
 
