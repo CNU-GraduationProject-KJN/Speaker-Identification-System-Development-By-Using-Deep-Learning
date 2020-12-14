@@ -37,7 +37,8 @@ def read_audio_from_filename(filename, target_sr):
     return audio
 
 
-def convert_data(data_dir, key):
+def convert_train_data(data_dir, key):
+
     class_id = get_member_idx_from_db(key)
     train_data_path = data_dir + '/preprocessed/pickle/train'
     test_data_path = data_dir + '/preprocessed/pickle/test'
@@ -65,8 +66,44 @@ def convert_data(data_dir, key):
         output_filename = os.path.join(output_folder, str(temp_split[-2]) + '.pkl')
         for i_seg, audio_seg in enumerate(voice_seg):
             out = {'class_id': class_id,
-                    'audio': audio_seg,
-                    'sr': TARGET_SR}
+                   'audio': audio_seg,
+                   'sr': TARGET_SR}
 
             with open(str(output_filename), 'wb') as w:
                 pickle.dump(out, w)
+
+
+def convert_test_data(data_dir):
+
+    class_id = -1
+    train_data_path = data_dir + '/preprocessed/pickle/train'
+    test_data_path = data_dir + '/preprocessed/pickle/test'
+    del_folder(train_data_path)
+    del_folder(test_data_path)
+    mkdir_p(train_data_path)
+    mkdir_p(test_data_path)
+
+    # for i, wav_filename in enumerate(iglob(os.path.join(data_dir, 'origin/**.wav'), recursive=True)):
+    # print('들어옴222')
+    wav_filename = os.path.join(data_dir, 'preprocessed/wav/1.wav')
+
+    print('wav_filename: ',wav_filename)
+    audio_buf = read_audio_from_filename(wav_filename, target_sr=TARGET_SR)
+
+        # normalize mean 0, variance 1
+    audio_buf = (audio_buf - np.mean(audio_buf)) / np.std(audio_buf)
+    # original_length = len(audio_buf)
+        # print(i, wav_filename, original_length, np.round(np.mean(audio_buf), 4), np.std(audio_buf))
+
+    voice_seg = [audio_buf[PAD_SIZE: AUDIO_LENGTH + PAD_SIZE]]
+
+    output_folder = train_data_path
+    temp_split = wav_filename.replace('.', '/').split('/')
+    output_filename = os.path.join(output_folder, str(temp_split[-2]) + '.pkl')
+    for i_seg, audio_seg in enumerate(voice_seg):
+        out = {'class_id': class_id,
+                   'audio': audio_seg,
+                   'sr': TARGET_SR}
+
+        with open(str(output_filename), 'wb') as w:
+            pickle.dump(out, w)

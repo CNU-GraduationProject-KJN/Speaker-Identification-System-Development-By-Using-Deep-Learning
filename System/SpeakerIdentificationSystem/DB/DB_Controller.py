@@ -119,13 +119,15 @@ def delete_member_from_db(key):
             curs.fetchall()
             curs.execute("commit")
 
-            key = get_last_member_key_from_db()
-            sql = "update member_list set idx = "+str(idx)+" where member_key = %s"
-            curs.execute(sql, key)
-            curs.fetchall()
-            curs.execute("commit")
-
-        return key
+            count = get_member_count_from_db()
+            if count > idx:
+                key = get_last_member_key_from_db()
+                sql = "update member_list set idx = "+str(idx)+" where member_key = %s"
+                curs.execute(sql, key)
+                curs.fetchall()
+                curs.execute("commit")
+                return True, key
+            return False, key
     finally:
         conn.close()
 

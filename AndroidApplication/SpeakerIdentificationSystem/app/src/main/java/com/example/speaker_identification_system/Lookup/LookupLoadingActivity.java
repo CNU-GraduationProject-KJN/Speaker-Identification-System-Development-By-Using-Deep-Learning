@@ -38,7 +38,7 @@ import java.util.zip.ZipOutputStream;
 public class LookupLoadingActivity extends AppCompatActivity {
 
     private static final String TAG = "Lookup";
-    private static final String mServerUrl = "http://168.188.126.212:3000/identify/";
+    private static final String mServerUrl = "http://XXX.XXX.XXX.XXX:3000/identify/";
 
     private ArrayList<String> mFilePathList;
     private String check_UserInfo;

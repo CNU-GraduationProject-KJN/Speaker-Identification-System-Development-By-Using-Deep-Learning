@@ -30,7 +30,7 @@ import java.util.ArrayList;
 public class ModifyNameLoadingActivity extends AppCompatActivity {
 
     private static final String TAG = "ModifyName";
-    private static final String mServerUrl = "http://168.188.126.212:3000/modifyName/";
+    private static final String mServerUrl = "http://xxx.xxx.xxx.xxx:xxxx/modifyName/";
 
     private ModifyNameLoadingActivity.CompressFiles mCompressFiles;
 

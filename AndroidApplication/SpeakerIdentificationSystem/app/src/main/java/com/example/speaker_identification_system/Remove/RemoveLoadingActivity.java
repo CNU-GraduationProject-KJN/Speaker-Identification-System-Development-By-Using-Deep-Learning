@@ -33,7 +33,7 @@ import java.util.ArrayList;
 public class RemoveLoadingActivity extends AppCompatActivity {
 
     private static final String TAG = "Remove";
-    private static final String mServerUrl = "http://168.188.126.212:3000/delete/";
+    private static final String mServerUrl = "http://xxx.xxx.xxx.xxx:xxxx/delete/";
 
     private RemoveLoadingActivity.CompressFiles mCompressFiles;
 

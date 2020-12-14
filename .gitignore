@@ -1,6 +1,7 @@
 *.pyc
 .xml
-
+/.idea
+*/.DS_Store
 /System/SpeakerIdentificationSystem/.idea
 
 /System/SpeakerIdentificationSystem/venv
