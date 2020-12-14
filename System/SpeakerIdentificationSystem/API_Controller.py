@@ -1,7 +1,7 @@
 import requests
 import json
 
-url = 'http://xxx.xxx.xxx.xxx:xxxx'
+url = 'xxx.xxx.xxx.xxx'
 
 
 def upload_result(key, result):
